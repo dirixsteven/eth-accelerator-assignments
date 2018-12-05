@@ -64,7 +64,7 @@
                 updateBlocks();
             }
 
-            function updateBlocks() {
+            async function updateBlocks() {
                 let provider = ethers.getDefaultProvider();
 
                 // Get the current gas price and pass the result to printGasPrice() function
@@ -76,16 +76,25 @@
                     printGasPrice(gasPriceString);
                 });
 
+                // SOLUTION 1
                 // Get the latest block number
-                provider.getBlockNumber().then((blockNumber) => {
-                    console.log("Current block number: " + blockNumber);
-                });
+                let blockNumber = await provider.getBlockNumber();
+                console.log("Current block number: " + blockNumber);
 
                 // Get the last 10 blocks and pass the result to printBlock() function
-                provider.getBlockNumber().then((latest) => {
+                for (var i = 0; i < 10; i++) {
+                    await provider.getBlock(blockNumber-i).then((block) => {
+                        console.log(block);
+                        printBlock(block);
+                    });
+                }
+
+                // SOLUTION 2
+                // Get the last 10 blocks and pass the result to printBlock() function
+                provider.getBlockNumber().then(async (latest) => {
                     console.log("Current block number: " + latest);
                     for (var i = 0; i < 10; i++) {
-                        provider.getBlock(latest-i).then((block) => {
+                        await provider.getBlock(latest-i).then((block) => {
                             console.log(block);
                             printBlock(block);
                         });
