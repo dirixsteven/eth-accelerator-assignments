@@ -1,5 +1,6 @@
 function getContract() {
-    let address = "0x98db05229cfe65e9829dc156e1fba1f8d8038f23";
+    // let address = "0x98db05229cfe65e9829dc156e1fba1f8d8038f23"; // Remix contract
+    let address = "0x01c438b12c38a5c30bec577638b62c7c9384517c"; // Truffle contract
     let abi = [
         {
             "constant": false,
