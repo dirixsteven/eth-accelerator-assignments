@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
-import './ERC721.sol';
+import 'openzeppelin-solidity/contracts/token/ERC721/ERC721.sol';
 
 contract CryptoBallers is ERC721 {
 
@@ -13,6 +13,8 @@ contract CryptoBallers is ERC721 {
         uint winCount;
         uint lossCount;
     }
+
+    event NewBaller();
 
     address owner;
     Baller[] public ballers;
@@ -68,6 +70,7 @@ contract CryptoBallers is ERC721 {
         (uint offense, uint defense) = _random(1,5);
         claimedFreeBaller[msg.sender] = true;
         _createBaller("puppy", level, offense, defense);
+        emit NewBaller();
     }
 
     /**
@@ -80,9 +83,10 @@ contract CryptoBallers is ERC721 {
         uint level = 1;
         (uint offense, uint defense) = _random(1,10);
         _createBaller("puppy", level, offense, defense);
+        emit NewBaller();
     }
 
-    function getAllCryptoBallers(address _from) public view returns (string[], uint[5][]) {
+    function getAllCryptoBallers(address _from) public view returns (string[], uint256[5][]) {
 
         string[] memory name = new string[](balanceOf(_from));
         uint256[5][] memory specs = new uint256[5][](balanceOf(_from));
@@ -94,15 +98,20 @@ contract CryptoBallers is ERC721 {
                 Baller storage tmp_baller = ballers[i];
                 
                 name[j] = tmp_baller.name;
-                specs[0][j] = tmp_baller.level;
+                specs[j] = [tmp_baller.level, tmp_baller.offenseSkill, tmp_baller.defenseSkill, tmp_baller.winCount, tmp_baller.lossCount];
+                /*specs[0][j] = tmp_baller.level;
                 specs[1][j] = tmp_baller.offenseSkill;
                 specs[2][j] = tmp_baller.defenseSkill;
                 specs[3][j] = tmp_baller.winCount;
-                specs[4][j] = tmp_baller.lossCount;
+                specs[4][j] = tmp_baller.lossCount;*/
                 j = j.add(1);
             }
         }
         return (name, specs);
+    }
+
+    function getAmountCryptoBallers() public view returns (uint) {
+        return ballers.length;
     }
 
     /**
