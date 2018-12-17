@@ -1,6 +1,7 @@
 function getContract() {
     // let address = "0x98db05229cfe65e9829dc156e1fba1f8d8038f23"; // Remix contract
-    let address = "0x9c54f3016d822cb16e6a8acc9a1495a3ca25afd2"; // Truffle contract
+    let addressCrypto = "0x9c54f3016d822cb16e6a8acc9a1495a3ca25afd2"; // Truffle contract
+    let addressERC20 = "0x9c54f3016d822cb16e6a8acc9a1495a3ca25afd2"
     let abi = [
         {
             "constant": true,
@@ -438,10 +439,11 @@ function getContract() {
 
     // this.provider = new ethers.providers.Web3Provider(web3.currentProvider); // connect to Metamask
     let provider = new ethers.providers.JsonRpcProvider("http://localhost:8545"); // connect to Ganache locally
-    let contract = new ethers.Contract(address, abi, provider.getSigner(1));
+    let contract = new ethers.Contract(addressCrypto, abi, provider.getSigner(1));
+    let contractERC20 = new ethers.Contract(addressCERC20, abi, provider.getSigner(1));
 
     console.log("Contract Initialization Successful");
-    return contract;
+    return contract, contractERC20;
 }
 
-var contract = getContract();
+var contract, contractERC20 = getContract();

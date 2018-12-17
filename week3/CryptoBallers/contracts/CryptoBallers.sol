@@ -1,7 +1,8 @@
 pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721.sol';
+//import 'openzeppelin-solidity/contracts/token/ERC721/ERC721.sol';
+import './ERC721.sol';
 
 contract CryptoBallers is ERC721 {
 
@@ -24,6 +25,7 @@ contract CryptoBallers is ERC721 {
 
     // Fee for buying a baller
     uint ballerFee = 0.10 ether;
+    uint ballerTokenMinimumFee = 1;
 
     /**
     * @dev Ensures ownership of the specified token ID
@@ -86,6 +88,19 @@ contract CryptoBallers is ERC721 {
         emit NewBaller();
     }
 
+    function buyBallerWithToken(address _from, uint _ballerTokenFee) external payable {
+        require(_ballerTokenFee >= ballerTokenMinimumFee, "not enough tokens in transaction");
+        uint fee = _ballerTokenFee;
+        uint floor = fee;
+        uint ceil = 9+fee;
+        uint level = 1;
+        (uint offense, uint defense) = _random(floor, ceil);
+        uint256 tokenId = ballers.length;
+        ballers.push(Baller("puppy", level, offense, defense, 0, 0));
+        _mint(_from, tokenId);
+        emit NewBaller();
+    }
+
     function getAllCryptoBallers(address _from) public view returns (string[], uint256[5][]) {
 
         string[] memory name = new string[](balanceOf(_from));
@@ -99,15 +114,32 @@ contract CryptoBallers is ERC721 {
                 
                 name[j] = tmp_baller.name;
                 specs[j] = [tmp_baller.level, tmp_baller.offenseSkill, tmp_baller.defenseSkill, tmp_baller.winCount, tmp_baller.lossCount];
-                /*specs[0][j] = tmp_baller.level;
-                specs[1][j] = tmp_baller.offenseSkill;
-                specs[2][j] = tmp_baller.defenseSkill;
-                specs[3][j] = tmp_baller.winCount;
-                specs[4][j] = tmp_baller.lossCount;*/
                 j = j.add(1);
             }
         }
         return (name, specs);
+    }
+
+    function getStructBaller(address _from) public view returns (Baller[] a) {
+
+        Baller[] memory b = new Baller[](balanceOf(_from));
+        uint j = 0;
+
+        for (uint i = 0; i < ballers.length; i++) {
+
+            if (_from == ownerOf(i)) {
+                Baller storage tmp_baller = ballers[i];
+                b[j].name = tmp_baller.name;
+                b[j].level = tmp_baller.level;
+                b[j].offenseSkill = tmp_baller.offenseSkill;
+                b[j].defenseSkill = tmp_baller.defenseSkill;
+                b[j].winCount = tmp_baller.winCount;
+                b[j].lossCount = tmp_baller.lossCount;
+                j = j.add(1);
+            }
+        }
+
+        return b;
     }
 
     function getAmountCryptoBallers() public view returns (uint) {
@@ -188,10 +220,10 @@ contract CryptoBallers is ERC721 {
 
     }
 
-    function _random(uint8 floor, uint8 ceiling) private view returns (uint8, uint8) {
+    function _random(uint floor, uint ceiling) private view returns (uint, uint) {
         //TODO: build in a range for random
-        uint8 offense = uint8(blockhash(block.number-1))%ceiling + floor;
-        uint8 defense = uint8(blockhash(block.number-2))%ceiling + floor;
+        uint offense = uint(blockhash(block.number-1))%ceiling + floor;
+        uint defense = uint(blockhash(block.number-2))%ceiling + floor;
         return (offense, defense);
     }
 }

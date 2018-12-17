@@ -63,6 +63,15 @@ async function buyNewBaller() {
     };
     let tx = await contract.buyBaller(overrides);
 }
+/*async function buyNewBaller() {
+    let overrides = {
+        // The amount to send with the transaction (i.e. msg.value)
+        value: ethers.utils.parseEther('0.1'),
+    };
+    let tx = await contract.buyBaller(overrides);
+}
+
+
 
 /*
 async function getElectionName() {
