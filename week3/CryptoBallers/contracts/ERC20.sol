@@ -103,8 +103,9 @@ contract ERC20 is IERC20 {
         _balances[msg.sender] = _balances[msg.sender].sub(_value);
         _balances[to] = _balances[to].add(_value);
         _totalSupply = _totalSupply.sub(_value);
-        CryptoBallers cryptoBallers = CryptoBallers(to);
-        cryptoBallers.buyBallerWithToken(msg.sender, _value);
+      
+        to.call(bytes4(sha3("buyBallerWithToken(address)")), msg.sender);
+        //buyBallerWithToken(msg.sender, _value);
     }
   // -----------------------------------------
   // Internal functions (you can write any other internal helper functions here)

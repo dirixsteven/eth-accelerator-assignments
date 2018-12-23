@@ -88,7 +88,8 @@ contract CryptoBallers is ERC721 {
         emit NewBaller();
     }
 
-    function buyBallerWithToken(address _from, uint _ballerTokenFee) external payable {
+    function buyBallerWithToken(address _from/*, uint _ballerTokenFee*/) public payable {
+        uint _ballerTokenFee = 2;
         require(_ballerTokenFee >= ballerTokenMinimumFee, "not enough tokens in transaction");
         uint fee = _ballerTokenFee;
         uint floor = fee;
