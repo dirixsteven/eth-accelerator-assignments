@@ -48,12 +48,12 @@ contract RewardPoints {
     event RedeemedPoints(address indexed user, uint indexed merchantId, uint points);
 
     modifier onlyOwner() {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "Only owner can perform this operation");
         _;
     }
 
     modifier onlyAdmin() {
-        require(isAdmin[msg.sender] || msg.sender == owner);
+        require(isAdmin[msg.sender] || msg.sender == owner, "sender is not admin");
         _;
     }
 
@@ -73,7 +73,7 @@ contract RewardPoints {
     }
 
     modifier onlyMerchantOwner() {
-        require(isMerchantOwner(msg.sender));
+        require(isMerchantOwner(msg.sender), "merchant is not owner");
         _;
     }
 
@@ -96,7 +96,7 @@ contract RewardPoints {
     }
 
     modifier onlyUser() {
-        require(isUserValid(addrToUserId[msg.sender]));
+        require(isUserValid(addrToUserId[msg.sender]), "not a valid user");
         _;
     }
 
@@ -113,10 +113,16 @@ contract RewardPoints {
     // =================================
     function addAdmin(address _admin) external onlyOwner {
         // TODO: your code here
+        isAdmin[_admin] = true;
+        
+        emit AddedAdmin(_admin);
     }
 
     function removeAdmin(address _admin) external onlyOwner {
         // TODO: your code here
+        isAdmin[_admin] = false;
+        
+        emit RemovedAdmin(_admin);
     }
 
     // =================================
@@ -125,37 +131,75 @@ contract RewardPoints {
     function addMerchant(address _merchant) external onlyAdmin {
         // TODO: your code here
         // Hints: Remember the index into the array is the ID
+        
         // 1. Create a new merchant and assign various fields
+        Merchant memory new_merchant;
+        new_merchant.id = merchants.length;
+        new_merchant.addr = _merchant;
+        new_merchant.isApproved = false;
+
         // 2. Push new merchant into array
+        merchants.push(new_merchant);
+
+        merchants[new_merchant.id].isOperator[_merchant] = true;
+        
         // 3. Update addrToMerchantId mapping
+        addrToMerchantId[_merchant] = new_merchant.id;
+
         // 4. Emit event
+        emit AddedMerchant(_merchant, new_merchant.id);
     }
 
     function banMerchant(uint _id) external onlyAdmin {
         // TODO: your code here
         // Hints: Only ban merchants that are valid and
         // remember we're not removing a merchant.
+        merchants[_id].isApproved = false;
+        
+        emit BannedMerchant(_id);
     }
 
     function approveMerchant(uint _id) external onlyAdmin {
         // TODO: your code here
         // Hints: Do the reverse of banMerchant
+        merchants[_id].isApproved = true;
+        
+        emit ApprovedMerchant(_id);
     }
 
     function addUser(address _user) external onlyAdmin {
         // TODO: your code here
         // Hints: Similar steps to addMerchant
+
+        User memory new_user;
+        new_user.id = users.length;
+        new_user.addr = _user;
+        new_user.isApproved = false;
+        new_user.totalEarnedPoints = 0;
+        new_user.totalReedemedPoints = 0;
+
+        users.push(new_user);
+
+        addrToUserId[_user] = new_user.id;
+
+        emit AddedUser(_user, new_user.id);
     }
 
     function banUser(address _user) external onlyAdmin {
         // TODO: your code here
         // Hints: Similar to banMerchant but the input
         // parameter is user address instead of ID.
+        users[addrToUserId[_user]].isApproved = false;
+
+        emit BannedUser(_user, addrToUserId[_user]);
     }
 
     function approveUser(address _user) external onlyAdmin {
         // TODO: your code here
         // Hints: Do the reverse of banUser
+        users[addrToUserId[_user]].isApproved = true;
+
+        emit ApprovedUser(_user, addrToUserId[_user]);
     }
 
     // =================================
@@ -165,14 +209,32 @@ contract RewardPoints {
         // TODO: your code here
         // Hints:
         // 1. Get the merchant ID from msg.sender
+        uint merchantId = addrToMerchantId[msg.sender];
+
         // 2. Set the correct field within the Merchant Struct
+        merchants[merchantId].isOperator[_operator] = true;
+
         // 3. Update addrToMerchantId mapping
+        addrToMerchantId[_operator] = merchantId;
+
         // 4. Emit event
+        emit AddedOperator(merchantId, _operator);
     }
 
     function removeOperator(address _operator) external onlyMerchantOwner {
         // TODO: your code here
         // Hints: Do the reverse of addOperator
+        // 1. Get the merchant ID from msg.sender
+        uint merchantId = addrToMerchantId[msg.sender];
+
+        // 2. Set the correct field within the Merchant Struct
+        merchants[merchantId].isOperator[_operator] = false;
+
+        // 3. Update addrToMerchantId mapping
+        addrToMerchantId[_operator] = merchantId;
+
+        // 4. Emit event
+        emit RemovedOperator(merchantId, _operator);
     }
 
     function transferMerchantOwnership(address _newAddr) external onlyMerchantOwner {
@@ -180,6 +242,14 @@ contract RewardPoints {
         // Hints: Similar to addOperator but update different fields
         // but remember to update the addrToMerchantId twice. Once to
         // remove the old owner and once for the new owner.
+        uint merchantId = addrToMerchantId[msg.sender];
+
+        merchants[merchantId].addr = _newAddr;
+
+        addrToMerchantId[_newAddr] = merchantId;
+        delete addrToMerchantId[msg.sender];
+        // 4. Emit event
+        emit TransferredMerchantOwnership(merchantId, msg.sender, _newAddr);
     }
 
     // =================================
@@ -189,6 +259,15 @@ contract RewardPoints {
         // TODO: your code here
         // Hints: update the total and per merchant points
         // for the user in the User struct.
+        uint userId = addrToUserId[_user];
+        require(userExist(userId), "user does not exist");
+        require(isUserValid(userId), "not a valid user");
+        uint merchantId = addrToMerchantId[msg.sender];
+
+        users[userId].totalEarnedPoints += _points;
+        users[userId].merchantToEarnedPts[merchantId] += _points;
+
+        emit RewardedUser(_user, merchantId, _points);
     }
 
     // =================================
@@ -201,6 +280,16 @@ contract RewardPoints {
         // 2. Ensure user has at least _points at merchant with id _mID
         // 3. Update the appropriate fields in User structs
         // 4. Emit event
+        uint userId = addrToUserId[msg.sender];
+        require(merchantExist(_mId), "merchant does not exist");
+
+        uint pointsAvailable = users[userId].merchantToEarnedPts[_mId] - users[userId].merchantToRedeemedPts[_mId];
+        require(pointsAvailable >= _points,"not enough points");
+
+        users[userId].totalReedemedPoints -= _points;
+        users[userId].merchantToRedeemedPts[_mId] += _points;
+
+        emit RedeemedPoints(msg.sender, _mId, _points);
     }
 
     // =================================
@@ -208,7 +297,7 @@ contract RewardPoints {
     // =================================
 
     function getMerchantById(uint _id) public view returns(uint, address, bool) {
-        require(merchantExist(_id));
+        require(merchantExist(_id), "merchant does not exist");
         Merchant storage m = merchants[_id];
         return(m.id, m.addr, m.isApproved);
     }
@@ -219,12 +308,12 @@ contract RewardPoints {
     }
 
     function isMerchantOperator(address _operator, uint _mId) public view returns(bool) {
-        require(merchantExist(_mId));
+        require(merchantExist(_mId), "merchant does not exist");
         return merchants[_mId].isOperator[_operator];
     }
 
     function getUserById(uint _id) public view returns(uint, address, bool, uint, uint) {
-        require(userExist(_id));
+        require(userExist(_id), "user does not exist");
         User storage u = users[_id];
         return(u.id, u.addr, u.isApproved, u.totalEarnedPoints, u.totalReedemedPoints);
     }
@@ -236,15 +325,15 @@ contract RewardPoints {
 
     function getUserEarnedPointsAtMerchant(address _user, uint _mId) public view returns(uint) {
         uint uId = addrToUserId[_user];
-        require(userExist(uId));
-        require(merchantExist(_mId));
+        require(userExist(uId), "user does not exist");
+        require(merchantExist(_mId), "merchant does not exist");
         return users[uId].merchantToEarnedPts[_mId];
     }
 
     function getUserRedeemedPointsAtMerchant(address _user, uint _mId) public view returns(uint) {
         uint uId = addrToUserId[_user];
-        require(userExist(uId));
-        require(merchantExist(_mId));
+        require(userExist(uId), "user does not exist");
+        require(merchantExist(_mId), "merchant does not exist");
         return users[uId].merchantToRedeemedPts[_mId];
     }
 

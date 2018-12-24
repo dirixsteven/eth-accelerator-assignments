@@ -1,0 +1,42 @@
+Ganache CLI v6.2.3 (ganache-core: 2.3.1)
+
+Available Accounts
+==================
+(0) 0xf52cc4c8421f5c66a4e4fd36bd78ae3c456b50c1 (~100 ETH)
+(1) 0xd83cb213c64c71590264b06b3c07b4d706743dc7 (~100 ETH)
+(2) 0x7b8e04df06a327d90089b2ca2dbf883d99b0667c (~100 ETH)
+(3) 0x1ffb4c943baf88069f9b52c88ec7dc7b7c7e564b (~100 ETH)
+(4) 0xcaeec39bdac87db90f1d997825475ae74b91120a (~100 ETH)
+(5) 0x99ebdfeca9c7a48ea89a0ec9f8f853e2f88e299a (~100 ETH)
+(6) 0x4e1375a5b1858763ce9b8fda1ba090f71b11e7ac (~100 ETH)
+(7) 0x464572a5ed0cdec86c25b9bc90a291b16244c70c (~100 ETH)
+(8) 0xbcf8714057d7d9ab6df52f11bd06821ab23c8fb1 (~100 ETH)
+(9) 0xac889318d26cb503decc0f4bf22795b12fe4685f (~100 ETH)
+
+Private Keys
+==================
+(0) 0x818ae2a10463d417a966f1d088aa90cc28c617865050b467c6259358cd377b60
+(1) 0x342606bcf63f9fd747b4dcb4cdf2e0377ee27952fd7bb496d266ed0f95177c45
+(2) 0x63f61bc7231eea9d05a42643501d0360a68f06ec36386e87d2fbc0efeb487562
+(3) 0x39e7e9e544c363e9882fdb29b84cb3f882ef630be8e0bc706a2bd435ae277dee
+(4) 0x197741e77efafe1fd401a1972861469614a1f3483dfa8f031d3e597ad950a980
+(5) 0xfe033625957ce533cb9454d8faade0e793db85efe9929b44769752d8b4bb63d9
+(6) 0x265d39b1005b69f6c3e3fb29aeba9c6b7682436a18af35ef07a81c77b4f21817
+(7) 0xb0eefc30ef89ed9517d006d70127639a514a9e1a1eabc4da6ac610038eea14ef
+(8) 0x2355737be762009b507f5382c5ced5692f9b72895b0735198817cb7a1990cb8a
+(9) 0x0010037789e2a2ab6635488b78be1cdc9f89d85afe43c020aa1791bac7ef01f7
+
+HD Wallet
+==================
+Mnemonic:      seat orange kidney dismiss bulb verb next bless leaf demise answer illegal
+Base HD Path:  m/44'/60'/0'/0/{account_index}
+
+Gas Price
+==================
+20000000000
+
+Gas Limit
+==================
+6721975                                                                                                                                                    
+                                                                                                                                                           
+Listening on 127.0.0.1:8545                                                                                                                               
